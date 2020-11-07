@@ -1,10 +1,8 @@
 local r = require("robot")
 local serialization = require("serialization")
 local sides = require("sides")
-local com = require("component")
 
-local inv = com.inventory_controller
-local nav = com.navigation
+local nav = require("component").navigation
 local serialize = serialization.serialize
 
 assert(nav ~= nil, "no navigation module found.")
@@ -137,6 +135,16 @@ function goTo(destination, relative)
   end
   log("path: " .. serialize(path, 30))
   return path
+end
+
+function goToWaypoint(name)
+  waypoint = getWaypoint(name)
+  if waypoint == nil then
+    error("Can't find waypoint: " .. name)
+  end
+  log("Found " .. name .. " at " .. s(waypoint))
+
+  return goTo(waypoint.position, true)
 end
 
 function backtrack(path)

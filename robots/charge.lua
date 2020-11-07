@@ -8,14 +8,7 @@ sides = require("sides")
 start = {locVal()}
 facing = nav.getFacing()
 
-waypoint = getWaypoint("charger")
-if waypoint == nil then
-  print("Can't find charger!")
-  os.exit(0)
-end
-print("Found charger at " .. s(waypoint))
-
-local way = goTo(waypoint.position, true)
+local way = goToWaypoint("charger")
 r.down()
 turnTo("posz")
 r.use()
