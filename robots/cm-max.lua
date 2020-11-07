@@ -1,19 +1,15 @@
+require("utils-nav")
+require("utils-inv")
 local r = require("robot")
 local com = require("component")
 local inv = com.inventory_controller
 
-local function simpleMove(f, n)
-  if n == nil then
-    n = 1
-  end
-  if f == nil then
-    f = r.forward
-  end
-  while n >0 do
-    assert(f(), "Couldn't move!")
-    n = n - 1
-  end
-end
+local cubeStock = {
+  { name="compactmachines3:wallbreakable", count=64, slot=3 },
+  { name="compactmachines3:wallbreakable", count=64, slot=4 },
+  { name="minecraft:emerald_block", slot=5 },
+  { name="minecraft:ender_pearl", slot=6 },
+}
 
 local function toss(x)
   r.select(x)
@@ -32,14 +28,12 @@ end
 function buildLine(l)
   for y=1, l do
     placeBlock()
-    simpleMove()
+    r.forward()
   end
 end
 local function cr()
-  simpleMove(r.turnRight)
-  simpleMove()
-  simpleMove(r.turnLeft)
-  simpleMove(r.back, 5)
+  move("west")
+  move("north", 5)
 end
 
 local function buildSolid()
@@ -47,44 +41,41 @@ local function buildSolid()
     buildLine(5)
     cr()
   end
-  simpleMove(r.turnLeft)
-  simpleMove(r.forward, 5)
-  simpleMove(r.turnRight)
+  move("east", 5)
 end
 
 function buildBorder(extra)
   for s =1, 4 do
     buildLine(4)
-    simpleMove(r.turnRight)
+    r.turnRight()
   end
   if extra then
-    simpleMove(r.turnRight)
-    simpleMove(r.forward, 2)
-    simpleMove(r.turnLeft)
-    simpleMove()
+    move("west", 2)
+    move("south")
     placeBlock()
-    simpleMove()
+    r.forward()
     r.select(5)
     r.placeDown()
-    simpleMove(r.back)
+    r.back()
     r.swingDown()
-    simpleMove(r.back)
-    simpleMove(r.turnLeft)
-    simpleMove(r.forward, 2)
-    simpleMove(r.turnRight)
+    r.back()
+    move("east", 2)
   end
 end
 
-simpleMove(r.forward, 2)
+goToWaypoint("store")
+turnTo("east")
+stockUp("front", cubeStock)
+goToWaypoint("CM")
+move("", 2)
 buildSolid()
-simpleMove(r.up)
+move("up")
 buildBorder(false)
-simpleMove(r.up)
+move("up")
 buildBorder(true)
-simpleMove(r.up)
+move("up")
 buildBorder(false)
-simpleMove(r.up)
+move("up")
 buildSolid()
-simpleMove(r.back, 2)
-simpleMove(r.down, 4)
+goToWaypoint("CM")
 toss(6)
