@@ -10,13 +10,20 @@ facing = nav.getFacing()
 
 local way = goToWaypoint("charger")
 r.down()
-turnTo("posz")
+turnTo("south")
 r.use()
 r.down()
 local charging = true
+local oldEnergy = comp.energy()
+local maxEnergy = comp.maxEnergy()
 while charging do
-  local level = comp.energy() / comp.maxEnergy()
-  charging = level < 0.9
+  os.sleep(0.1)
+  local curEnergy = comp.energy()
+  if curEnergy < oldEnergy then
+    error("not charging!")
+  end
+  local level = curEnergy / maxEnergy
+  charging = level < 0.95
   print("Charging... " .. level)
 end
 print("Charged!")
