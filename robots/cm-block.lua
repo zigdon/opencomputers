@@ -6,12 +6,6 @@ local blockStock = {
   { name="minecraft:iron_block", count=10, slot=1 },
   { name="minecraft:redstone",   count=20, slot=2 },
 }
-local cubeStock = {
-  { name="compactmachines3:wallbreakable", count=64, slot=3 },
-  { name="compactmachines3:wallbreakable", count=64, slot=4 },
-  { name="minecraft:emerald_block", slot=5 },
-  { name="minecraft:ender_pearl", slot=6 },
-}
 
 local function build()
   r.select(1) -- iron block
