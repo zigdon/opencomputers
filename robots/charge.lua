@@ -1,4 +1,4 @@
-require("utils")
+require("utils-nav")
 r = require("robot")
 s = require("serialization").serialize
 nav = require("component").navigation
