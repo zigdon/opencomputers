@@ -3,7 +3,7 @@ local serialization = require("serialization")
 local sides = require("sides")
 
 local nav = require("component").navigation
-local serialize = serialization.serialize
+local s = serialization.serialize
 
 assert(nav ~= nil, "no navigation module found.")
 
@@ -30,27 +30,31 @@ end
 
 function move(dir, distance)
   assert(type(dir) == "string", "move takes a string argument")
-  log(distance .. " steps heading " .. dir)
-  targetFace = sides[dir]
-  if targetFace == nil then
-    error("Bad direction to move: " .. dir)
+  local go = r.forward
+  if dir == "forward" or dir == "" then
+    log(distance .. " steps forward")
+  else
+    log(distance .. " steps heading " .. dir)
+    local targetFace = sides[dir]
+    if targetFace == nil then
+      error("Bad direction to move: " .. dir)
+    end
+
+    if distance == nil then
+      distance = 1
+    end
+
+    log("starting from " .. loc())
+    turnTo(dir)
+
+    if targetFace == sides.top then
+      go = r.up
+    elseif targetFace == sides.bottom then
+      go = r.down
+    end
   end
 
-  if distance == nil then
-    distance = 1
-  end
-
-  log("starting from " .. loc())
-  turnTo(dir)
-
-  went = 0
-  go = r.forward
-  if targetFace == sides.top then
-    go = r.up
-  elseif targetFace == sides.bottom then
-    go = r.down
-  end
-
+  local went = 0
   while went < distance do
     if go() then
       went = went + 1
@@ -99,7 +103,7 @@ function goTo(destination, relative)
   else
     dest.x, dest.y, dest.z = destination[1], destination[2], destination[3]
   end
-  log("going to " .. serialize(dest) .. " from " .. loc())
+  log("going to " .. s(dest) .. " from " .. loc())
   local moving = true
   local path = {}
   while moving do
@@ -110,7 +114,7 @@ function goTo(destination, relative)
       y = dest.y - cur.y,
       z = dest.z - cur.z,
     }
-    log("delta: " .. serialize(delta))
+    log("delta: " .. s(delta))
 
     for _, k in pairs({"x", "y", "z"}) do
       local sign = nil
@@ -133,7 +137,7 @@ function goTo(destination, relative)
       end
     end
   end
-  log("path: " .. serialize(path, 30))
+  log("path: " .. s(path, 30))
   return path
 end
 
@@ -151,7 +155,7 @@ function backtrack(path)
   assert(path ~= nil)
   while #path > 0 do
     local next = table.remove(path)
-    log("Next step: " .. serialize(next))
+    log("Next step: " .. s(next))
     local sign = "pos"
     if next.sign == "pos" then
       sign = "neg"

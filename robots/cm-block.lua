@@ -1,29 +1,46 @@
+require("utils-inv")
+require("utils-nav")
 r = require("robot")
 
-local function move(f)
-  if f() then
-    return
-  end
-  print("Couldn't move!")
-  die()
-end
-
-local function approach()
-  move(r.forward)
-  move(r.down)
-end
+local blockStock = {
+  { name="minecraft:iron_block", count=10, slot=1 },
+  { name="minecraft:redstone",   count=20, slot=2 },
+}
+local cubeStock = {
+  { name="compactmachines3:wallbreakable", count=64, slot=3 },
+  { name="compactmachines3:wallbreakable", count=64, slot=4 },
+  { name="minecraft:emerald_block", slot=5 },
+  { name="minecraft:ender_pearl", slot=6 },
+}
 
 local function build()
-  r.select(2) -- iron block
+  r.select(1) -- iron block
   r.place()
   r.up()
-  r.select(1) -- redstone
+  r.select(2) -- redstone
   r.place()
 end
 
 local function toss()
+  r.select(2)
   r.drop(1)
 end
+
+local function collect()
+  move("south", 4)
+  move("west", 2)
+  local waited = 0
+  while waited < 5 do
+    if r.suckDown() or r.suckUp() then
+      return
+    end
+  end
+  error("never found the blocks")
+end
+
+goToWaypoint("store")
+turnTo("east")
+stockUp("front", blockStock)
 
 local args = {...}
 local count = 1
@@ -33,9 +50,12 @@ if args[1] ~= nil then
 end
 
 for i=1,count do
-  approach()
+  goToWaypoint("CM")
+  turnTo("south")
+  r.forward()
+  r.down()
   build()
   r.back()
   toss()
-  os.sleep(5)
+  collect()
 end
